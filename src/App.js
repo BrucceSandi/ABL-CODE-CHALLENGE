@@ -1,24 +1,39 @@
-import logo from './logo.svg';
+import {useState} from 'react';
+import useFetchStudents from './hooks/useStudents';
+import { getTimeSpentInMeetings} from './helper/studentService';
 import './App.css';
 
-function App() {
+const App = () => {
+    const {students, isLoading} = useFetchStudents();
+    const [timeInInstructionalMeetings, setTimeInInstructionalMeetings] = useState();
+    const onSubmit = async(event) =>{
+        event.preventDefault();
+        const studentName = event.target.students?.value;
+        setTimeInInstructionalMeetings(await getTimeSpentInMeetings('instructional', studentName));
+    };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <>
+          {!isLoading && (
+              <form onSubmit={onSubmit}>
+              <div className='container'>
+                  <label htmlFor='students'>Please input a student name:</label>
+                  <select
+                      className='form-select'
+                      name='students'
+                      id='students'
+                      defaultValue='default'
+                      data-testid='selector'
+                  >
+                      <option value='default'>Select a student</option>
+                      {students.map((student) => (<option key={student} value={student}>{student}</option>))}
+                  </select>
+                  <button type='button' className='btn btn-primary' type='submit'> Submit</button>
+                  {timeInInstructionalMeetings >= 0 ? <span>Snickerdoodle spends {timeInInstructionalMeetings}% of their time in instructional meetings</span> : null}
+              </div>
+
+            </form>)}
+      </>
+
   );
 }
 
